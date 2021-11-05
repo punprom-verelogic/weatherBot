@@ -1,0 +1,122 @@
+{
+  "$kind": "Microsoft.AdaptiveDialog",
+  "$designer": {
+    "id": "OsOnMy",
+    "name": "get_weather",
+    "comment": "Get current weather conditions."
+  },
+  "autoEndDialog": true,
+  "defaultResultProperty": "dialog.result",
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnBeginDialog",
+      "$designer": {
+        "name": "BeginDialog",
+        "description": "",
+        "id": "7LR4pv"
+      },
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "$designer": {
+            "id": "lSnv1O"
+          },
+          "activity": "${SendActivity_lSnv1O()}"
+        },
+        {
+          "$kind": "Microsoft.TextInput",
+          "$designer": {
+            "id": "UQ4Vez"
+          },
+          "disabled": false,
+          "maxTurnCount": 3,
+          "alwaysPrompt": false,
+          "allowInterruptions": false,
+          "prompt": "${TextInput_Prompt_UQ4Vez()}",
+          "unrecognizedPrompt": "${TextInput_UnrecognizedPrompt_UQ4Vez()}",
+          "invalidPrompt": "${TextInput_InvalidPrompt_UQ4Vez()}",
+          "property": "user.postalcode",
+          "outputFormat": "=trim(this.value)",
+          "validations": [
+            "=length(this.value) == 5"
+          ],
+          "defaultValueResponse": "${TextInput_DefaultValueResponse_UQ4Vez()}"
+        },
+        {
+          "$kind": "Microsoft.HttpRequest",
+          "$designer": {
+            "id": "6PSwoX"
+          },
+          "method": "GET",
+          "url": "http://api.openweathermap.org/data/2.5/weather?zip=${user.postalcode},us&appid=7b68af644e486a444cfefdb46a49cf29",
+          "resultProperty": "dialog.api_response",
+          "responseType": "json"
+        },
+        {
+          "$kind": "Microsoft.IfCondition",
+          "$designer": {
+            "id": "4XMhZ6"
+          },
+          "condition": "=dialog.api_response.statusCode == 200",
+          "actions": [
+            {
+              "$kind": "Microsoft.SetProperties",
+              "$designer": {
+                "id": "pBQufE"
+              },
+              "assignments": [
+                {
+                  "value": "=dialog.api_response.content.weather[0].description",
+                  "property": "dialog.weather"
+                },
+                {
+                  "property": "dialog.icon",
+                  "value": "=dialog.api_response.content.weather[0].icon"
+                },
+                {
+                  "property": "dialog.city",
+                  "value": "=dialog.api_response.content.name"
+                },
+                {
+                  "property": "dialog.country",
+                  "value": "=dialog.api_response.content.sys.country"
+                },
+                {
+                  "property": "dialog.kelvin",
+                  "value": "=dialog.api_response.content.main.temp"
+                },
+                {
+                  "property": "dialog.celsius",
+                  "value": "=round(dialog.kelvin-273.15)"
+                },
+                {
+                  "property": "dialog.fahrenheit",
+                  "value": "=round((dialog.celsius * 9/5) + 32)"
+                }
+              ]
+            },
+            {
+              "$kind": "Microsoft.SendActivity",
+              "$designer": {
+                "id": "HGRwjS"
+              },
+              "activity": "${SendActivity_HGRwjS()}"
+            }
+          ],
+          "elseActions": [
+            {
+              "$kind": "Microsoft.SendActivity",
+              "$designer": {
+                "id": "8Kcmpn"
+              },
+              "activity": "${SendActivity_8Kcmpn()}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "generator": "get_weather.lg",
+  "recognizer": "get_weather.lu.qna",
+  "id": "get_weather"
+}
